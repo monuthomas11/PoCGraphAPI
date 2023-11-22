@@ -4,7 +4,8 @@
     Private Const client_secret As String = "9yR8Q~86_VD0z4hpgKSFDSgSpeH.-w4hXC5n8byb"
     Private Const sharepointsite_id As String = "606ba5e7-9328-4b07-a52f-02e8c5871ee2"
     Sub Main()
-        GetItem()
+        'GetItem()
+        GetMyDrive()
 
         Console.ReadKey()
     End Sub

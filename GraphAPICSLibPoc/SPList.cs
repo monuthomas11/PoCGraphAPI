@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace GraphAPICSLibPoc
@@ -35,9 +37,16 @@ namespace GraphAPICSLibPoc
         }
         public async Task<string> GetMyDrive()
         {
+            var me = await _graphServiceClient.Groups["{12e7dae8-2c16-4ed3-8015-cfe7178b5bd5}"].Drive.GetAsync(); 
+            //var drive = await _graphServiceClient.Me.Drive.GetAsync();
+            return JsonSerializer.Serialize(me);
+        }
 
-            var drive = await _graphServiceClient.Me.Drive.GetAsync();
-            return 
+        public async Task<string> GetDriveItems()
+        {
+            var result = await _graphServiceClient.Drives["{drive-id}"].Items["{driveItem-id}"].Children.GetAsync();
+            //var drive = await _graphServiceClient.Me.Drive.GetAsync();
+            return JsonSerializer.Serialize(result);
         }
     }
     public class ItemModel
