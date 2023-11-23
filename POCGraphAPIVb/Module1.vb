@@ -5,7 +5,8 @@
     Private Const sharepointsite_id As String = "606ba5e7-9328-4b07-a52f-02e8c5871ee2"
     Sub Main()
         'GetItem()
-        GetMyDrive()
+        'GetMyDrive()
+        GetDriveItems()
 
         Console.ReadKey()
     End Sub
@@ -22,6 +23,13 @@
         Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
         Dim driveJson = Await sp.GetMyDrive()
         Console.WriteLine(driveJson)
+        Console.ReadKey()
+
+    End Sub
+    Async Sub GetDriveItems()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
+        Dim json = Await sp.GetDriveItems()
+        Console.WriteLine(json)
         Console.ReadKey()
 
     End Sub

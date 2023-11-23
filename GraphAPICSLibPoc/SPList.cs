@@ -44,8 +44,14 @@ namespace GraphAPICSLibPoc
 
         public async Task<string> GetDriveItems()
         {
-            var result = await _graphServiceClient.Drives["{drive-id}"].Items["{driveItem-id}"].Children.GetAsync();
-            //var drive = await _graphServiceClient.Me.Drive.GetAsync();
+            var result = await _graphServiceClient
+                //.Groups["12e7dae8-2c16-4ed3-8015-cfe7178b5bd5"]
+                .Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                .Items["012FCIDFMBDYD5MEMOIZC3T437XYQGD2KN"]
+                .Children
+                .GetAsync();
+            //var result = await _graphServiceClient.Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"].Items["{012FCIDFL2ANWARFF4GZFKQVGYRJGC5X7Q}"].Children.GetAsync();
+           // var result = await _graphServiceClient.Drives["{drive-id}"].Items["{driveItem-id}"].Children.GetAsync();
             return JsonSerializer.Serialize(result);
         }
     }
