@@ -6,7 +6,9 @@
     Sub Main()
         'GetItem()
         'GetMyDrive()
-        GetDriveItems()
+        'GetDriveItems()
+        UpdateFileName()
+        'UploadFile()
 
         Console.ReadKey()
     End Sub
@@ -34,4 +36,19 @@
 
     End Sub
 
+    Async Sub UpdateFileName()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
+        Dim json = Await sp.UpdateFileName()
+        Console.WriteLine(json)
+        Console.ReadKey()
+
+    End Sub
+
+    Async Sub UploadFile()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
+        Dim json = Await sp.UploadFile()
+        Console.WriteLine(json)
+        Console.ReadKey()
+
+    End Sub
 End Module

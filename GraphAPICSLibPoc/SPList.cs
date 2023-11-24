@@ -1,12 +1,17 @@
 ﻿using Microsoft.Graph;
+using Microsoft.Graph.Models;
+using Microsoft.Graph.Models.ODataErrors;
+using Microsoft.Graph.Models.Security;
 using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using DriveUpload = Microsoft.Graph.Drives.Item.Items.Item.CreateUploadSession;
 
 namespace GraphAPICSLibPoc
 {
@@ -53,6 +58,85 @@ namespace GraphAPICSLibPoc
             //var result = await _graphServiceClient.Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"].Items["{012FCIDFL2ANWARFF4GZFKQVGYRJGC5X7Q}"].Children.GetAsync();
            // var result = await _graphServiceClient.Drives["{drive-id}"].Items["{driveItem-id}"].Children.GetAsync();
             return JsonSerializer.Serialize(result);
+        }
+
+        public async Task<string> UpdateFileName()
+        {
+            var requestBody = new DriveItem
+            {
+                Name = "FileUploaded.png",
+            };
+
+            // To initialize your graphClient, see https://learn.microsoft.com/en-us/graph/sdks/create-client?from=snippets&tabs=csharp
+            var result = await _graphServiceClient
+                .Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                .Items["012FCIDFPWLLKFUATKBJF2QMPST4MFPSUU"] // update folder nams/properties as well as file names/properties
+                .PatchAsync(requestBody);
+
+            return JsonSerializer.Serialize(result);
+        }
+
+        public async Task<string> UploadFile()
+        {
+            string result = "";
+            using (var fileStream = File.OpenRead($"C:\\Users\\monut\\OneDrive\\Pictures\\Screenshots\\2017-07-14.png"))
+            {
+
+                // Use properties to specify the conflict behavior
+                //using (var DriveUpload = Microsoft.Graph.Drives.Item.Items.Item.CreateUploadSession)
+                var uploadSessionRequestBody = new DriveUpload.CreateUploadSessionPostRequestBody
+                {
+                    Item = new DriveItemUploadableProperties
+                    {
+                        AdditionalData = new Dictionary<string, object>
+                        {
+                            { "@microsoft.graph.conflictBehavior", "replace" },
+                        },
+                    },
+                };
+
+                // Create the upload session
+                // itemPath does not need to be a path to an existing item
+                //var myDrive = await _graphServiceClient.Me.Drive.GetAsync();
+                var myDrive = await _graphServiceClient
+                .Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"].GetAsync();
+
+                var uploadSession = await _graphServiceClient
+                .Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                    .Items["012FCIDFMBDYD5MEMOIZC3T437XYQGD2KN"]
+                    .ItemWithPath("/drives/b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-/root:/DemoFolder/FileUploaded.png") //provide filename for the new file 
+                    .CreateUploadSession
+                    .PostAsync(uploadSessionRequestBody);
+
+                // Max slice size must be a multiple of 320 KiB
+                int maxSliceSize = 320 * 1024;
+                var fileUploadTask = new LargeFileUploadTask<DriveItem>(
+                    uploadSession, fileStream, maxSliceSize, _graphServiceClient.RequestAdapter);
+
+                var totalLength = fileStream.Length;
+                // Create a callback that is invoked after each slice is uploaded
+                IProgress<long> progress = new Progress<long>(prog =>
+                {
+                    Console.WriteLine($"Uploaded {prog} bytes of {totalLength} bytes");
+                });
+
+                try
+                {
+                    // Upload the file
+                    var uploadResult = await fileUploadTask.UploadAsync(progress);
+
+                    result = JsonSerializer.Serialize(uploadResult);
+                    Console.WriteLine(uploadResult.UploadSucceeded ?
+                        $"Upload complete, item ID: {uploadResult.ItemResponse.Id}" :
+                        "Upload failed");
+                }
+                catch (ODataError ex)
+                {
+                    Console.WriteLine($"Error uploading: {ex.Error?.Message}");
+                }
+            }
+            return result;
+
         }
     }
     public class ItemModel
