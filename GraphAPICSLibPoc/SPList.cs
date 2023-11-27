@@ -213,6 +213,10 @@ namespace GraphAPICSLibPoc
                 .Items["012FCIDFMBDYD5MEMOIZC3T437XYQGD2KN"]
                 .Children
                 .GetAsync();
+                //.GetAsync((requestConfiguration) =>
+                //{
+                //    requestConfiguration.QueryParameters.Search = "\"NameUpdated\"";
+                //}); // not filtering on search parameter
 
             string fileId = files.Value.Where(x => x.Name == "sample.pdf").Select(x => x.Id).FirstOrDefault();
 
@@ -231,6 +235,8 @@ namespace GraphAPICSLibPoc
 
             return JsonSerializer.Serialize(result);
         }
+
+        //public async Task<DriveItemC>
     }
     public class ItemModel
     {
