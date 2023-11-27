@@ -1,4 +1,6 @@
 ﻿using Microsoft.Graph;
+using Microsoft.Graph.DeviceManagement.UserExperienceAnalyticsWorkFromAnywhereMetrics.Item.MetricDevices.Item;
+using Microsoft.Graph.Drives.Item.Items.Item.Restore;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Models.ODataErrors;
 using Microsoft.Graph.Models.Security;
@@ -137,6 +139,97 @@ namespace GraphAPICSLibPoc
             }
             return result;
 
+        }
+
+        public async Task<string> DeleteFile() 
+        {
+            string result = "";
+            var files = await _graphServiceClient
+                .Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                .Items["012FCIDFMBDYD5MEMOIZC3T437XYQGD2KN"]
+                .Children
+                .GetAsync();
+            foreach ( var file in files.Value )
+            {
+                if (file.Name == "sample.pdf")
+                {
+                    var fileId = file.Id;
+                    await _graphServiceClient
+                                    .Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                                    .Items[fileId] // update folder nams/properties as well as file names/properties
+                                    .DeleteAsync();
+                    result = "DELETED ID: " + fileId;
+                    break;
+                    
+                }
+            }
+            return result;
+        }
+
+        //not working - not able to retrieve id for item in recycle bin
+        public async Task<string> RestoreDeletedFile()
+        {
+            // Code snippets are only available for the latest version. Current version is 5.x
+
+            // Dependencies
+            //using Microsoft.Graph.Drives.Item.Items.Item.Restore;
+            //using Microsoft.Graph.Models;
+
+            var requestBody = new RestorePostRequestBody
+            {
+                ParentReference = new ItemReference
+                {
+                    Id = "012FCIDFMBDYD5MEMOIZC3T437XYQGD2KN",
+                },
+                Name = "SampleRestored.pdf",
+            };
+
+            // To initialize your graphClient, see https://learn.microsoft.com/en-us/graph/sdks/create-client?from=snippets&tabs=csharp
+            var result = await _graphServiceClient
+                .Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                .Items["012FCIDFMNOPXB64CZDNGKTRWQSJ7QLSPB"]
+                //.Restore.PostAsync(requestBody);
+                .GetAsync();
+
+            return JsonSerializer.Serialize(result);
+
+
+        }
+
+        public async Task<string> MoveItem()
+        {
+            var driveFolders = await _graphServiceClient.Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                .Items["012FCIDFN6Y2GOVW7725BZO354PWSELRRZ"].Children.GetAsync();
+
+            //var items = await _graphServiceClient
+            //    //.Sites["48c3dbd7-fe08-418f-a633-8c75e00b277b"]
+            //    .Groups["12e7dae8-2c16-4ed3-8015-cfe7178b5bd5"]
+            //    //.Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+            //        .Drive.
+            string newFolderId = driveFolders.Value.Where(x=>x.Name == "TestFolder").Select(x=>x.Id).FirstOrDefault();
+
+            var files = await _graphServiceClient
+                .Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                .Items["012FCIDFMBDYD5MEMOIZC3T437XYQGD2KN"]
+                .Children
+                .GetAsync();
+
+            string fileId = files.Value.Where(x => x.Name == "sample.pdf").Select(x => x.Id).FirstOrDefault();
+
+            var requestBody = new DriveItem
+            {
+                ParentReference = new ItemReference
+                {
+                    Id = newFolderId
+                },
+                Name = "movedsample.pdf"
+            };
+
+            // To initialize your graphClient, see https://learn.microsoft.com/en-us/graph/sdks/create-client?from=snippets&tabs=csharp
+            var result = await _graphServiceClient.Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                .Items[fileId].PatchAsync(requestBody);
+
+            return JsonSerializer.Serialize(result);
         }
     }
     public class ItemModel

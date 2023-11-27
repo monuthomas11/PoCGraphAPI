@@ -7,8 +7,13 @@
         'GetItem()
         'GetMyDrive()
         'GetDriveItems()
-        UpdateFileName()
+        'UpdateFileName()
         'UploadFile()
+
+        'DeleteFile()
+        'RestoreFile() 'not working as not able to retrieve item id in recycle bin
+
+        MoveFile()
 
         Console.ReadKey()
     End Sub
@@ -51,4 +56,29 @@
         Console.ReadKey()
 
     End Sub
+
+    Async Sub DeleteFile()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
+        Dim json = Await sp.DeleteFile()
+        Console.WriteLine(json)
+        Console.ReadKey()
+
+    End Sub
+
+    Async Sub RestoreFile()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
+        Dim json = Await sp.RestoreDeletedFile()
+        Console.WriteLine(json)
+        Console.ReadKey()
+
+    End Sub
+
+    Async Sub MoveFile()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
+        Dim json = Await sp.MoveItem()
+        Console.WriteLine(json)
+        Console.ReadKey()
+
+    End Sub
+
 End Module
