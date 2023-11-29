@@ -13,7 +13,9 @@
         'DeleteFile()
         'RestoreFile() 'not working as not able to retrieve item id in recycle bin
 
-        MoveFile()
+        'MoveFile()
+        'PreviewFile()
+        GetFileStream()
 
         Console.ReadKey()
     End Sub
@@ -76,6 +78,22 @@
     Async Sub MoveFile()
         Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
         Dim json = Await sp.MoveItem()
+        Console.WriteLine(json)
+        Console.ReadKey()
+
+    End Sub
+
+    Async Sub PreviewFile()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
+        Dim json = Await sp.PreviewItem()
+        Console.WriteLine(json)
+        Console.ReadKey()
+
+    End Sub
+
+    Async Sub GetFileStream()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
+        Dim json = Await sp.GetFileStream()
         Console.WriteLine(json)
         Console.ReadKey()
 

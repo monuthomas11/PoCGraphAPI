@@ -1,5 +1,6 @@
 ﻿using Microsoft.Graph;
 using Microsoft.Graph.DeviceManagement.UserExperienceAnalyticsWorkFromAnywhereMetrics.Item.MetricDevices.Item;
+using Microsoft.Graph.Drives.Item.Items.Item.Preview;
 using Microsoft.Graph.Drives.Item.Items.Item.Restore;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Models.ODataErrors;
@@ -236,7 +237,50 @@ namespace GraphAPICSLibPoc
             return JsonSerializer.Serialize(result);
         }
 
-        //public async Task<DriveItemC>
+        public async Task<string> PreviewItem()
+        {
+            PreviewPostRequestBody req = new PreviewPostRequestBody();
+
+            var fileId = "012FCIDFL2ANWARFF4GZFKQVGYRJGC5X7Q";
+            var json  = await _graphServiceClient
+                            .Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                            .Items[fileId] // update folder nams/properties as well as file names/properties
+                            .Preview.PostAsync(req);
+
+
+            return JsonSerializer.Serialize(json);
+        }
+
+        public async Task<string> GetFileStream() 
+        {
+            var fileId = "012FCIDFL2ANWARFF4GZFKQVGYRJGC5X7Q";
+            var stream = await _graphServiceClient
+                            .Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"]
+                            .Items[fileId].Content.GetAsync();
+
+
+            byte[] b = null;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                int count = 0;
+                do
+                {
+                    byte[] buf = new byte[1024];
+                    count = stream.Read(buf, 0, 1024);
+                    ms.Write(buf, 0, count);
+                } while (stream.CanRead && count > 0);
+                b = ms.ToArray();
+                ms.Dispose();
+                using (var fileStream = File.Create("E:\\Downloads\\Temp"))
+                {
+                    ms.Seek(0, SeekOrigin.Begin);
+                    ms.CopyTo(fileStream);
+                }
+
+
+            }
+            return JsonSerializer.Serialize(stream.ToString());
+        }
     }
     public class ItemModel
     {
