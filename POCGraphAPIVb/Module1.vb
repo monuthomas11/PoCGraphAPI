@@ -15,8 +15,19 @@
 
         'MoveFile()
         'PreviewFile()
-        GetFileStream()
+        'GetFileStream()
 
+        'GetSites()
+        'GetFolderByName()
+        GetFolderByPath()
+        Console.ReadKey()
+    End Sub
+
+    Async Sub GetSites()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
+        Dim sites = Await sp.GetSites()
+
+        Console.WriteLine(sites)
         Console.ReadKey()
     End Sub
     Async Sub GetItem()
@@ -27,7 +38,22 @@
         Console.WriteLine($"Title {item.Name}, Name {item.Title}")
         Console.ReadKey()
     End Sub
+    Async Sub GetFolderByName()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
 
+        Dim item = Await sp.GetFolderByName("TestFolder", "")
+
+        Console.WriteLine(item)
+        Console.ReadKey()
+    End Sub
+    Async Sub GetFolderByPath()
+        Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
+
+        Dim item = Await sp.GetFolderByPath("TestFolder/movedsample.pdf", "")
+
+        Console.WriteLine(item)
+        Console.ReadKey()
+    End Sub
     Async Sub GetMyDrive()
         Dim sp As New GraphAPICSLibPoc.SPList(client_id, tenant_id, client_secret)
         Dim driveJson = Await sp.GetMyDrive()

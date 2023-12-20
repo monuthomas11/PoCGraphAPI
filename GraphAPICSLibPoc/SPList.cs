@@ -34,6 +34,12 @@ namespace GraphAPICSLibPoc
             _authProvider = new ClientCredentialProvider(_confidentialClientApplication);
             _graphServiceClient = new GraphServiceClient(_authProvider);
         }
+
+        public async Task<string> GetSites() 
+        {
+            var sites = await _graphServiceClient.Sites.GetAsync();
+            return JsonSerializer.Serialize(sites);
+        }
         public async Task<ItemModel> GetItem(string siteId, string listId, string itemId)
         {
             ItemModel model = null;
@@ -281,6 +287,34 @@ namespace GraphAPICSLibPoc
             }
             return JsonSerializer.Serialize(stream.ToString());
         }
+        public async Task<string> GetFolderByName(string name, string driveId)
+        {
+            driveId = "b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-";
+            string filter = "name eq '" + name + "'";
+            var result = await _graphServiceClient
+                //.Groups["12e7dae8-2c16-4ed3-8015-cfe7178b5bd5"]
+                .Drives[driveId].Items["root"]
+                //.Items["012FCIDFMBDYD5MEMOIZC3T437XYQGD2KN"]
+                .Children
+                .GetAsync((requestConfiguration) => {
+                    requestConfiguration.QueryParameters.Filter = filter;
+                });
+            //var result = await _graphServiceClient.Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"].Items["{012FCIDFL2ANWARFF4GZFKQVGYRJGC5X7Q}"].Children.GetAsync();
+            // var result = await _graphServiceClient.Drives["{drive-id}"].Items["{driveItem-id}"].Children.GetAsync();
+            return JsonSerializer.Serialize(result);
+        }
+        public async Task<string> GetFolderByPath(string path, string driveId)
+        {
+            driveId = "b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-";
+            var result = await _graphServiceClient
+                .Drives[driveId].Root.ItemWithPath(path)
+                //.Children
+                .GetAsync();
+            //var result = await _graphServiceClient.Drives["b!19vDSAj-j0GmM4x14Asne4U9MMkh_SxItknxyVfMN15Bh7Yy1yRoRryIS3mrrSo-"].Items["{012FCIDFL2ANWARFF4GZFKQVGYRJGC5X7Q}"].Children.GetAsync();
+            // var result = await _graphServiceClient.Drives["{drive-id}"].Items["{driveItem-id}"].Children.GetAsync();
+            return JsonSerializer.Serialize(result);
+        }
+
     }
     public class ItemModel
     {
